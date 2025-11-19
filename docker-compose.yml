@@ -5,22 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: brutranking-app
+    container_name: ${CONTAINER_NAME:-brutranking-app}
     image: brutranking:latest
     ports:
-      - "3000:3000"
+      # Puerto configurable para evitar conflictos
+      - "${HOST_PORT:-3000}:${CONTAINER_PORT:-3000}"
     volumes:
-      # Persistir datos y fotos
-      - ./data:/app/data
-      - ./uploads:/app/uploads
+      # Persistir datos y fotos con rutas configurables
+      - ${DATA_PATH:-./data}:/app/data
+      - ${UPLOADS_PATH:-./uploads}:/app/uploads
     environment:
-      - NODE_ENV=production
-      - PORT=3000
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${CONTAINER_PORT:-3000}
     restart: unless-stopped
     networks:
       - brutranking-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/ranking', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${CONTAINER_PORT:-3000}/api/ranking', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -28,10 +29,23 @@ services:
     labels:
       - "com.brutranking.description=Ranking de limpieza de oficina"
       - "com.brutranking.version=1.0"
+    # Limitar recursos para no afectar otros contenedores
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
 networks:
   brutranking-network:
+    # Usar nombre configurable y external opcional
+    name: ${NETWORK_NAME:-brutranking-network}
     driver: bridge
+    # No crear si ya existe (comentar si quieres crear nueva)
+    # external: true
 
 volumes:
   data:

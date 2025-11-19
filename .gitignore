@@ -8,6 +8,7 @@ data/ranking.json
 
 # Docker volumes
 docker-compose.override.yml
+.env
 
 # Logs
 *.log

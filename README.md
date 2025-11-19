@@ -47,15 +47,50 @@ Docker facilita el despliegue y asegura que la aplicación funcione en cualquier
 - Docker (versión 20.10 o superior)
 - Docker Compose (versión 2.0 o superior)
 
-#### Opción 1: Script automático (Linux/Mac)
+#### ⚠️ IMPORTANTE: Configuración segura para servidores con múltiples contenedores
+
+Si tienes otros contenedores en producción que NO pueden caer:
 
 ```bash
-# Dar permisos de ejecución (solo la primera vez)
-chmod +x docker-start.sh
+# 1. Copia y configura el archivo .env
+cp .env.example .env
 
-# Ejecutar el script
+# 2. Edita .env y cambia los valores según tu entorno
+nano .env  # o vim .env
+
+# IMPORTANTE: Verifica especialmente:
+# - HOST_PORT: Usa un puerto que NO esté ocupado
+# - CONTAINER_NAME: Usa un nombre único
+# - NETWORK_NAME: Evita conflictos con redes existentes
+```
+
+**Valores recomendados para .env:**
+```bash
+HOST_PORT=3001          # Verifica: netstat -tuln | grep :3001
+CONTAINER_NAME=brutranking-app-prod
+NETWORK_NAME=brutranking-prod-network
+DATA_PATH=/opt/brutranking/data
+UPLOADS_PATH=/opt/brutranking/uploads
+```
+
+#### ✅ Opción 1: Script automático con verificaciones (RECOMENDADO)
+
+Este script incluye verificaciones de seguridad:
+
+```bash
+# Primero, verifica que sea seguro desplegar
+./check-safe-deploy.sh
+
+# Si todo OK, despliega
 ./docker-start.sh
 ```
+
+El script automáticamente:
+- ✓ Verifica puertos disponibles
+- ✓ Detecta conflictos de nombres
+- ✓ Muestra otros contenedores corriendo
+- ✓ Solo afecta a BrutRanking, NUNCA a otros contenedores
+- ✓ Crea .env si no existe
 
 #### Opción 2: Comandos manuales
 
@@ -248,9 +283,80 @@ BrutRanking/
 
 ## 🔒 Seguridad
 
+### Seguridad de la aplicación
 - Validación de tipos de archivo (solo imágenes)
 - Nombres únicos para archivos subidos
 - Validación de datos en backend
+- Usuario no-root en contenedor Docker
+- Imagen Alpine Linux (ligera y segura)
+
+### ⚠️ Seguridad en entornos con múltiples contenedores
+
+**CRÍTICO**: Si tienes otros contenedores en producción, sigue estos pasos:
+
+#### 1. Usa el archivo .env para configuración
+```bash
+cp .env.example .env
+nano .env  # Configura puertos y nombres únicos
+```
+
+#### 2. Verifica antes de desplegar
+```bash
+./check-safe-deploy.sh  # Detecta conflictos
+```
+
+El script de verificación comprueba:
+- ✓ Puertos disponibles (evita colisiones)
+- ✓ Nombres de contenedores (evita conflictos)
+- ✓ Espacio en disco
+- ✓ Otros contenedores corriendo
+- ✓ Redes Docker
+
+#### 3. Despliegue seguro garantizado
+
+Los scripts están diseñados para:
+- **NUNCA afectar otros contenedores**: Solo opera sobre BrutRanking
+- **Detección de conflictos**: Avisa antes de cualquier problema
+- **Límites de recursos**: CPU y RAM limitados para no monopolizar
+- **Aislamiento de red**: Red bridge dedicada
+- **Rollback automático**: Si falla, no deja el sistema en mal estado
+
+#### 4. Comandos seguros
+
+```bash
+# Ver SOLO el contenedor de BrutRanking
+docker ps --filter name=brutranking-app
+
+# Detener SOLO BrutRanking (no afecta otros)
+docker-compose down
+
+# Ver logs SOLO de BrutRanking
+docker logs brutranking-app
+
+# Verificar recursos usados
+docker stats brutranking-app
+```
+
+#### 5. Limitación de recursos
+
+El contenedor está limitado a:
+- **CPU**: Máximo 1 core (mínimo 0.25)
+- **RAM**: Máximo 512MB (mínimo 128MB)
+
+Esto previene que monopolice recursos del servidor.
+
+#### 6. Cambiar puerto si hay conflicto
+
+Si el puerto 3000 está ocupado:
+
+```bash
+# En .env
+HOST_PORT=3001  # O cualquier puerto libre
+
+# Verificar que esté libre
+netstat -tuln | grep :3001
+# Si no devuelve nada, está libre
+```
 
 ## 🌐 Despliegue en producción
 
