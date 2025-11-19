@@ -39,6 +39,94 @@ npm start
 - Dashboard público: `http://localhost:3000`
 - Panel de administración: `http://localhost:3000/admin.html`
 
+### 🐳 Instalación con Docker (Recomendado)
+
+Docker facilita el despliegue y asegura que la aplicación funcione en cualquier entorno.
+
+#### Prerrequisitos
+- Docker (versión 20.10 o superior)
+- Docker Compose (versión 2.0 o superior)
+
+#### Opción 1: Script automático (Linux/Mac)
+
+```bash
+# Dar permisos de ejecución (solo la primera vez)
+chmod +x docker-start.sh
+
+# Ejecutar el script
+./docker-start.sh
+```
+
+#### Opción 2: Comandos manuales
+
+```bash
+# Construir y levantar el contenedor
+docker-compose up -d
+
+# Ver los logs
+docker-compose logs -f
+
+# Detener el contenedor
+docker-compose down
+```
+
+#### Opción 3: Solo Docker (sin docker-compose)
+
+```bash
+# Construir la imagen
+docker build -t brutranking:latest .
+
+# Crear directorios para persistencia
+mkdir -p data uploads
+
+# Ejecutar el contenedor
+docker run -d \
+  --name brutranking \
+  -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/uploads:/app/uploads \
+  --restart unless-stopped \
+  brutranking:latest
+
+# Ver logs
+docker logs -f brutranking
+
+# Detener
+docker stop brutranking
+docker rm brutranking
+```
+
+#### Verificar el estado
+
+```bash
+# Ver contenedores corriendo
+docker-compose ps
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Reiniciar el servicio
+docker-compose restart
+
+# Ver uso de recursos
+docker stats brutranking-app
+```
+
+#### Configuración de puertos
+
+Para usar un puerto diferente al 3000, edita el `docker-compose.yml`:
+
+```yaml
+ports:
+  - "8080:3000"  # Puerto_host:Puerto_contenedor
+```
+
+O con Docker directo:
+
+```bash
+docker run -d -p 8080:3000 ...
+```
+
 ## 📱 Uso
 
 ### Dashboard Público
@@ -96,12 +184,17 @@ Accede a `http://localhost:3000/admin.html` para:
 BrutRanking/
 ├── server.js              # Servidor Express y API REST
 ├── package.json           # Dependencias del proyecto
+├── Dockerfile             # Imagen Docker
+├── docker-compose.yml     # Orquestación de contenedores
+├── .dockerignore          # Archivos excluidos del build
+├── docker-start.sh        # Script de inicio con Docker
 ├── data/                  # Base de datos JSON
 │   └── ranking.json       # Datos de personas e incidencias
 ├── uploads/               # Fotos de evidencia
 ├── public/                # Frontend
 │   ├── index.html         # Dashboard público
 │   ├── app.js             # Lógica del dashboard
+│   ├── background-3d.js   # Fondo 3D animado
 │   ├── admin.html         # Panel de administración
 │   ├── admin.js           # Lógica del panel admin
 │   └── styles.css         # Estilos globales
@@ -126,13 +219,32 @@ BrutRanking/
 
 ## 🎨 Características
 
+### 🎭 Interfaz y Diseño
+- ✅ Diseño 3D espectacular con tema escatológico
+- ✅ Fondo animado con partículas y efectos 3D
+- ✅ Título con efecto arcoíris y sombras 3D
+- ✅ Efectos de slime goteando
+- ✅ Podio visual tipo olimpiadas con animaciones
 - ✅ Diseño responsive (móvil, tablet, desktop)
-- ✅ Actualización automática del dashboard
 - ✅ Animaciones y transiciones suaves
+- ✅ Burbujas tóxicas y partículas flotantes
+
+### ⚡ Funcionalidades
+- ✅ Actualización automática del dashboard (cada 10s)
 - ✅ Sistema de notificaciones (toasts)
 - ✅ Preview de imágenes antes de subir
-- ✅ Podio visual tipo olimpiadas
 - ✅ Interfaz intuitiva y colorida
+- ✅ Historial de incidencias con fotos
+- ✅ Sistema de ranking en tiempo real
+
+### 🐳 Docker
+- ✅ Dockerizado y listo para producción
+- ✅ Docker Compose para despliegue fácil
+- ✅ Volúmenes para persistencia de datos
+- ✅ Healthcheck automático
+- ✅ Usuario no-root para seguridad
+- ✅ Script de inicio automático
+- ✅ Reinicio automático en caso de fallo
 
 ## 🔒 Seguridad
 
@@ -142,7 +254,88 @@ BrutRanking/
 
 ## 🌐 Despliegue en producción
 
-Para desplegar en un servidor:
+### 🐳 Despliegue con Docker (Recomendado)
+
+Docker es la forma más sencilla y confiable de desplegar en producción.
+
+#### En un servidor Linux
+
+```bash
+# 1. Instalar Docker y Docker Compose (si no están instalados)
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+# 2. Clonar el repositorio
+git clone <url-del-repositorio>
+cd BrutRanking
+
+# 3. Levantar el servicio
+docker-compose up -d
+
+# 4. Verificar que está corriendo
+docker-compose ps
+docker-compose logs -f
+```
+
+#### Con proxy reverso (Nginx)
+
+Para usar con un dominio y HTTPS:
+
+```nginx
+# /etc/nginx/sites-available/brutranking
+server {
+    listen 80;
+    server_name ranking.tuempresa.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Luego añade SSL con Let's Encrypt:
+
+```bash
+sudo certbot --nginx -d ranking.tuempresa.com
+```
+
+#### Actualizar la aplicación
+
+```bash
+# Detener el contenedor
+docker-compose down
+
+# Obtener última versión
+git pull
+
+# Reconstruir y reiniciar
+docker-compose up -d --build
+
+# Verificar logs
+docker-compose logs -f
+```
+
+#### Backup de datos
+
+```bash
+# Crear backup
+tar -czf backup-$(date +%Y%m%d).tar.gz data/ uploads/
+
+# Restaurar backup
+tar -xzf backup-20240101.tar.gz
+```
+
+### 📦 Despliegue tradicional (sin Docker)
+
+Si prefieres no usar Docker:
 
 1. Configura la variable de entorno `PORT` si es necesario:
 ```bash
@@ -154,9 +347,35 @@ PORT=8080 npm start
 npm install -g pm2
 pm2 start server.js --name brutranking
 pm2 save
+pm2 startup  # Configurar inicio automático
 ```
 
 3. Asegúrate de que las carpetas `data/` y `uploads/` tengan permisos de escritura
+
+### ☁️ Despliegue en la nube
+
+#### Docker Hub
+
+```bash
+# Login en Docker Hub
+docker login
+
+# Tag y push
+docker tag brutranking:latest tu-usuario/brutranking:latest
+docker push tu-usuario/brutranking:latest
+```
+
+#### En cualquier VPS con Docker
+
+```bash
+# En el servidor
+docker pull tu-usuario/brutranking:latest
+docker run -d -p 3000:3000 \
+  -v /opt/brutranking/data:/app/data \
+  -v /opt/brutranking/uploads:/app/uploads \
+  --restart always \
+  tu-usuario/brutranking:latest
+```
 
 ## 📝 Notas
 

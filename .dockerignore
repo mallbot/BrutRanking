@@ -1,0 +1,54 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+
+# Datos temporales (se montan como volúmenes)
+data/ranking.json
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.gif
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Tests
+test
+tests
+*.test.js
+*.spec.js
+
+# Coverage
+coverage
+.nyc_output

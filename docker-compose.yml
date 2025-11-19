@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  brutranking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brutranking-app
+    image: brutranking:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persistir datos y fotos
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - brutranking-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/ranking', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.brutranking.description=Ranking de limpieza de oficina"
+      - "com.brutranking.version=1.0"
+
+networks:
+  brutranking-network:
+    driver: bridge
+
+volumes:
+  data:
+  uploads:
