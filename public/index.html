@@ -7,13 +7,53 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dashboard">
+    <!-- Fondo 3D animado -->
+    <canvas id="background-canvas"></canvas>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles">
+        <div class="particle particle-trash">🗑️</div>
+        <div class="particle particle-broom">🧹</div>
+        <div class="particle particle-soap">🧼</div>
+        <div class="particle particle-can">🥫</div>
+        <div class="particle particle-bottle">🍾</div>
+        <div class="particle particle-pizza">🍕</div>
+        <div class="particle particle-burger">🍔</div>
+        <div class="particle particle-coffee">☕</div>
+        <div class="particle particle-germs">🦠</div>
+        <div class="particle particle-sparkle">✨</div>
+    </div>
+
     <div class="container">
-        <header class="header">
-            <h1>🧹 RANKING DE LIMPIEZA 🧹</h1>
-            <p class="subtitle">¡Mantengamos la cocina limpia!</p>
+        <header class="header header-3d">
+            <div class="header-bg-effect"></div>
+            <div class="header-content">
+                <div class="title-wrapper">
+                    <div class="title-decoration left">
+                        <span class="deco-icon">🦠</span>
+                        <span class="deco-icon">🗑️</span>
+                        <span class="deco-icon">💩</span>
+                    </div>
+                    <h1 class="title-3d">
+                        <span class="title-shadow">RANKING DE LIMPIEZA</span>
+                        <span class="title-main">RANKING DE LIMPIEZA</span>
+                    </h1>
+                    <div class="title-decoration right">
+                        <span class="deco-icon">💩</span>
+                        <span class="deco-icon">🗑️</span>
+                        <span class="deco-icon">🦠</span>
+                    </div>
+                </div>
+                <p class="subtitle subtitle-3d">
+                    <span class="subtitle-icon">⚠️</span>
+                    ¡HALL OF SHAME DE LA SUCIEDAD!
+                    <span class="subtitle-icon">⚠️</span>
+                </p>
+                <div class="header-slime"></div>
+            </div>
         </header>
 
-        <div class="podium" id="podium">
+        <div class="podium podium-3d" id="podium">
             <!-- Top 3 se mostrará aquí -->
         </div>
 
@@ -21,11 +61,13 @@
             <!-- Resto del ranking -->
         </div>
 
-        <div class="footer">
-            <p>Última actualización: <span id="last-update">--</span></p>
+        <div class="footer footer-3d">
+            <div class="footer-slime-top"></div>
+            <p>⏰ Última actualización: <span id="last-update">--</span></p>
         </div>
     </div>
 
+    <script src="background-3d.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
