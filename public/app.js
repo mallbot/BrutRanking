@@ -24,7 +24,7 @@ function mostrarRanking(ranking) {
   rankingList.innerHTML = '';
 
   if (ranking.length === 0) {
-    rankingList.innerHTML = '<div class="empty-state">¡Aún no hay datos! La oficina está limpia 🎉</div>';
+    rankingList.innerHTML = '<div class="empty-state">¡Aún no hay guarros registrados! Todo el mundo se porta bien... por ahora 😏</div>';
     return;
   }
 

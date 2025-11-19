@@ -3,7 +3,7 @@ FROM node:18-alpine
 
 # Información del mantenedor
 LABEL maintainer="BrutRanking Team"
-LABEL description="Aplicación de ranking de limpieza de oficina"
+LABEL description="Aplicación del ranking del más guarro de la oficina"
 
 # Instalar su-exec para cambiar de usuario de forma segura
 RUN apk add --no-cache su-exec

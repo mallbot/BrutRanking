@@ -1,7 +1,7 @@
 {
   "name": "brutranking",
   "version": "1.0.0",
-  "description": "Ranking de limpieza de la oficina",
+  "description": "Ranking del más guarro de la oficina",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
