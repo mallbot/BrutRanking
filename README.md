@@ -1,10 +1,10 @@
-# 🧹 BrutRanking
+# 💩 BrutRanking
 
-Aplicación web para gestionar un ranking de limpieza en la oficina. Sistema gamificado para incentivar la limpieza en espacios compartidos como cocinas o salas comunes.
+Aplicación web para gestionar el ranking del más guarro de la oficina. Sistema gamificado (con humor) para identificar quién deja más suciedad en espacios compartidos como cocinas o salas comunes.
 
 ## 📋 Descripción
 
-BrutRanking es una aplicación web completa que permite llevar un seguimiento de las incidencias de limpieza en la oficina. Cada vez que alguien deja suciedad sin limpiar, se le suma un punto al ranking junto con una foto de evidencia.
+BrutRanking es una aplicación web completa que permite llevar un seguimiento de las guarradas en la oficina. Cada vez que alguien deja suciedad sin limpiar, se le suma un punto al ranking junto con una foto de evidencia. ¡El que más puntos tenga es el campeón de la guarrería!
 
 La aplicación incluye:
 - **Dashboard público**: Pantalla para mostrar en videowalls o pantallas comunes

@@ -27,7 +27,7 @@ services:
       retries: 3
       start_period: 10s
     labels:
-      - "com.brutranking.description=Ranking de limpieza de oficina"
+      - "com.brutranking.description=Ranking del más guarro de la oficina"
       - "com.brutranking.version=1.0"
     # Limitar recursos para no afectar otros contenedores
     deploy:
