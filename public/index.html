@@ -1,73 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💩 Ranking del Más Guarro - Oficina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Rubik:wght@400;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
+
 <body class="dashboard">
     <!-- Fondo 3D animado -->
-    <canvas id="background-canvas"></canvas>
+    <div id="canvas-container"></div>
 
-    <!-- Partículas flotantes -->
-    <div class="floating-particles">
-        <div class="particle particle-trash">🗑️</div>
-        <div class="particle particle-broom">🧹</div>
-        <div class="particle particle-soap">🧼</div>
-        <div class="particle particle-can">🥫</div>
-        <div class="particle particle-bottle">🍾</div>
-        <div class="particle particle-pizza">🍕</div>
-        <div class="particle particle-burger">🍔</div>
-        <div class="particle particle-coffee">☕</div>
-        <div class="particle particle-germs">🦠</div>
-        <div class="particle particle-sparkle">✨</div>
-    </div>
-
-    <div class="container">
-        <header class="header header-3d">
-            <div class="header-bg-effect"></div>
-            <div class="header-content">
-                <div class="title-wrapper">
-                    <div class="title-decoration left">
-                        <span class="deco-icon">🦠</span>
-                        <span class="deco-icon">🗑️</span>
-                        <span class="deco-icon">💩</span>
-                    </div>
-                    <h1 class="title-3d">
-                        <span class="title-shadow">RANKING DEL MÁS GUARRO</span>
-                        <span class="title-main">RANKING DEL MÁS GUARRO</span>
-                    </h1>
-                    <div class="title-decoration right">
-                        <span class="deco-icon">💩</span>
-                        <span class="deco-icon">🗑️</span>
-                        <span class="deco-icon">🦠</span>
-                    </div>
-                </div>
-                <p class="subtitle subtitle-3d">
-                    <span class="subtitle-icon">⚠️</span>
-                    ¡HALL OF SHAME DE LA SUCIEDAD!
-                    <span class="subtitle-icon">⚠️</span>
-                </p>
-                <div class="header-slime"></div>
+    <div class="main-container">
+        <header class="header-cartoon">
+            <div class="title-group">
+                <div class="icon-float icon-left">💩</div>
+                <h1 class="main-title">
+                    <span class="title-top">RANKING DEL</span>
+                    <span class="title-bottom">MÁS GUARRO</span>
+                </h1>
+                <div class="icon-float icon-right">🪰</div>
             </div>
         </header>
 
-        <div class="podium podium-3d" id="podium">
-            <!-- Top 3 se mostrará aquí -->
+        <div class="hall-of-shame-banner">
+            <div class="banner-content">
+                <span class="warning-icon">⚠️</span>
+                <h2>HALL OF SHAME DE LA SUCIEDAD</h2>
+                <span class="warning-icon">⚠️</span>
+            </div>
         </div>
 
-        <div class="ranking-list" id="ranking-list">
-            <!-- Resto del ranking -->
+        <div class="content-text">
+            <p class="highlight-text">¡EL RANKING AÚN NO HA COMENZADO!</p>
+            <p class="sub-text">Prepárense para la lucha por el<br>título más despreciable.</p>
         </div>
 
-        <div class="footer footer-3d">
-            <div class="footer-slime-top"></div>
-            <p>⏰ Última actualización: <span id="last-update">--</span></p>
-        </div>
+        <button class="rules-btn">
+            <span class="btn-icon">💩</span>
+            Ver las Reglas (o Intentarlo)
+        </button>
     </div>
 
     <script src="background-3d.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

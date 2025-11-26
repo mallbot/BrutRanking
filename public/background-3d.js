@@ -1,254 +1,197 @@
-// Fondo 3D animado con tema escatológico
-const canvas = document.getElementById('background-canvas');
-const ctx = canvas.getContext('2d');
+// 3D Background with Three.js
+// Vortex Tunnel with Floating Trash
 
-// Ajustar tamaño del canvas
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+let scene, camera, renderer;
+let tunnel;
+let particles = [];
+const particleCount = 50;
+const tunnelRadius = 10;
+const tunnelLength = 100;
 
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-// Partículas de fondo
-class Particle3D {
-  constructor() {
-    this.reset();
-    this.y = Math.random() * canvas.height;
-    this.opacity = Math.random() * 0.5 + 0.2;
-  }
-
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = -50;
-    this.z = Math.random() * 1000;
-    this.size = Math.random() * 3 + 1;
-    this.speedY = Math.random() * 0.5 + 0.2;
-    this.speedX = (Math.random() - 0.5) * 0.3;
-    this.rotation = Math.random() * Math.PI * 2;
-    this.rotationSpeed = (Math.random() - 0.5) * 0.02;
-
-    // Colores tóxicos/suciedad
-    const colors = [
-      '#8B4513', // Marrón
-      '#654321', // Marrón oscuro
-      '#556B2F', // Verde oliva
-      '#6B8E23', // Verde sucio
-      '#8B7355', // Beige sucio
-      '#708238', // Verde limón sucio
-      '#665D1E', // Amarillo sucio
-    ];
-    this.color = colors[Math.floor(Math.random() * colors.length)];
-  }
-
-  update() {
-    // Efecto 3D de perspectiva
-    const perspective = 1000;
-    const scale = perspective / (perspective + this.z);
-
-    this.y += this.speedY / scale;
-    this.x += this.speedX / scale;
-    this.z -= 1;
-    this.rotation += this.rotationSpeed;
-
-    // Reset si sale de la pantalla
-    if (this.y > canvas.height + 50 || this.z < 1) {
-      this.reset();
-    }
-  }
-
-  draw() {
-    const perspective = 1000;
-    const scale = perspective / (perspective + this.z);
-    const size = this.size * scale * 8;
-
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.rotation);
-    ctx.globalAlpha = this.opacity * scale;
-
-    // Dibujar forma irregular (como manchas)
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-
-    const points = 6;
-    for (let i = 0; i < points; i++) {
-      const angle = (Math.PI * 2 * i) / points;
-      const radius = size * (0.5 + Math.random() * 0.5);
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-
-    ctx.closePath();
-    ctx.fill();
-
-    // Sombra para efecto 3D
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 10 * scale;
-    ctx.shadowOffsetX = 3 * scale;
-    ctx.shadowOffsetY = 3 * scale;
-
-    ctx.restore();
-  }
-}
-
-// Ondas de fondo
-class BackgroundWave {
-  constructor(y, speed, color, amplitude) {
-    this.y = y;
-    this.speed = speed;
-    this.color = color;
-    this.amplitude = amplitude;
-    this.offset = 0;
-  }
-
-  update() {
-    this.offset += this.speed;
-  }
-
-  draw() {
-    ctx.save();
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = 0.1;
-
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-
-    for (let x = 0; x <= canvas.width; x += 10) {
-      const y = this.y + Math.sin((x + this.offset) * 0.01) * this.amplitude;
-      ctx.lineTo(x, y);
-    }
-
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-// Burbujas tóxicas
-class ToxicBubble {
-  constructor() {
-    this.reset();
-  }
-
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = canvas.height + 50;
-    this.radius = Math.random() * 30 + 10;
-    this.speedY = -(Math.random() * 1 + 0.5);
-    this.speedX = (Math.random() - 0.5) * 0.5;
-    this.opacity = Math.random() * 0.3 + 0.2;
-    this.pulse = Math.random() * Math.PI * 2;
-  }
-
-  update() {
-    this.y += this.speedY;
-    this.x += this.speedX;
-    this.pulse += 0.05;
-
-    if (this.y < -50) {
-      this.reset();
-    }
-  }
-
-  draw() {
-    const pulseSize = Math.sin(this.pulse) * 3;
-    const currentRadius = this.radius + pulseSize;
-
-    ctx.save();
-
-    // Gradiente tóxico
-    const gradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, currentRadius
-    );
-    gradient.addColorStop(0, `rgba(139, 195, 74, ${this.opacity})`);
-    gradient.addColorStop(0.5, `rgba(85, 107, 47, ${this.opacity * 0.5})`);
-    gradient.addColorStop(1, 'rgba(85, 107, 47, 0)');
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, currentRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Brillo
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.3})`;
-    ctx.beginPath();
-    ctx.arc(this.x - currentRadius * 0.3, this.y - currentRadius * 0.3, currentRadius * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-// Inicializar elementos
-const particles = [];
-const waves = [];
-const bubbles = [];
-
-for (let i = 0; i < 100; i++) {
-  particles.push(new Particle3D());
-}
-
-for (let i = 0; i < 5; i++) {
-  waves.push(new BackgroundWave(
-    canvas.height * 0.2 * (i + 1),
-    Math.random() * 0.5 + 0.2,
-    `hsl(${Math.random() * 60 + 30}, 50%, 30%)`,
-    50 + Math.random() * 50
-  ));
-}
-
-for (let i = 0; i < 20; i++) {
-  bubbles.push(new ToxicBubble());
-}
-
-// Gradiente de fondo animado
-let hueShift = 0;
-
-function drawBackground() {
-  hueShift += 0.1;
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, `hsl(${270 + Math.sin(hueShift * 0.01) * 20}, 60%, 25%)`);
-  gradient.addColorStop(0.5, `hsl(${250 + Math.sin(hueShift * 0.015) * 20}, 50%, 20%)`);
-  gradient.addColorStop(1, `hsl(${230 + Math.sin(hueShift * 0.02) * 20}, 55%, 15%)`);
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-// Animación principal
-function animate() {
-  drawBackground();
-
-  // Dibujar ondas
-  waves.forEach(wave => {
-    wave.update();
-    wave.draw();
-  });
-
-  // Dibujar burbujas
-  bubbles.forEach(bubble => {
-    bubble.update();
-    bubble.draw();
-  });
-
-  // Dibujar partículas
-  particles.forEach(particle => {
-    particle.update();
-    particle.draw();
-  });
-
-  requestAnimationFrame(animate);
-}
-
+init();
 animate();
+
+function init() {
+    // Scene setup
+    scene = new THREE.Scene();
+    // Fog to hide the end of the tunnel - Dark Purple/Brown
+    scene.fog = new THREE.FogExp2(0x3e2723, 0.02);
+
+    // Camera setup
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 0;
+
+    // Renderer setup
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // Create Tunnel
+    createTunnel();
+
+    // Create Floating Trash
+    createTrashParticles();
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffaa00, 1, 50);
+    pointLight.position.set(0, 0, 10);
+    scene.add(pointLight);
+
+    // Resize handler
+    window.addEventListener('resize', onWindowResize, false);
+}
+
+function createTunnel() {
+    // Generate a "dirty" texture procedurally
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+
+    // Base color - Dark Purple/Brown sludge
+    context.fillStyle = '#4a3b52';
+    context.fillRect(0, 0, 512, 512);
+
+    // Add noise/dirt - Green/Brown splotches
+    for (let i = 0; i < 500; i++) {
+        const x = Math.random() * 512;
+        const y = Math.random() * 512;
+        const size = Math.random() * 60 + 20;
+        // Mix of sludge green, poop brown, and dark purple
+        const colors = ['#556B2F', '#6d4c41', '#7b1fa2', '#827717'];
+        context.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+        context.globalAlpha = 0.4;
+        context.beginPath();
+        context.arc(x, y, size, 0, Math.PI * 2);
+        context.fill();
+    }
+
+    // Add streaks - Slime trails
+    for (let i = 0; i < 50; i++) {
+        context.strokeStyle = '#9e9d24'; // Slime green
+        context.lineWidth = Math.random() * 15 + 5;
+        context.globalAlpha = 0.2;
+        context.beginPath();
+        context.moveTo(0, Math.random() * 512);
+        context.bezierCurveTo(
+            170, Math.random() * 512,
+            340, Math.random() * 512,
+            512, Math.random() * 512
+        );
+        context.stroke();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(4, 20);
+
+    // Cylinder geometry for the tunnel
+    // radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded
+    const geometry = new THREE.CylinderGeometry(tunnelRadius, tunnelRadius, tunnelLength, 32, 32, true);
+
+    // Invert geometry to see inside
+    geometry.scale(-1, 1, 1);
+
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.BackSide,
+        fog: true
+    });
+
+    tunnel = new THREE.Mesh(geometry, material);
+    tunnel.rotation.x = Math.PI / 2; // Rotate to look down the tube
+    scene.add(tunnel);
+}
+
+function createTrashParticles() {
+    const emojis = ['💩', '🗑️', '🪰', '🦠', '🍕', '☕', '🦴', '🧦'];
+
+    for (let i = 0; i < particleCount; i++) {
+        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const sprite = createTextSprite(emoji);
+
+        // Random position inside the tunnel
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * (tunnelRadius - 2); // Keep inside tunnel
+        const z = Math.random() * tunnelLength - (tunnelLength / 2);
+
+        sprite.position.set(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            z
+        );
+
+        // Custom properties for animation
+        sprite.userData = {
+            velocity: (Math.random() * 0.1) + 0.05,
+            rotationSpeed: (Math.random() - 0.5) * 0.05,
+            radius: radius,
+            angle: angle
+        };
+
+        scene.add(sprite);
+        particles.push(sprite);
+    }
+}
+
+function createTextSprite(message) {
+    const canvas = document.createElement('canvas');
+    const size = 128;
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+
+    context.font = '80px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillStyle = 'white'; // Emoji color is natural, but this helps if fallback
+    context.fillText(message, size / 2, size / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(2, 2, 1);
+    return sprite;
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Move tunnel texture to simulate forward movement
+    if (tunnel) {
+        tunnel.material.map.offset.y -= 0.005;
+        tunnel.rotation.z += 0.002; // Slight rotation of the whole tunnel
+    }
+
+    // Animate particles
+    particles.forEach(p => {
+        p.position.z += p.userData.velocity * 5; // Move towards camera
+        p.material.rotation += p.userData.rotationSpeed;
+
+        // Spiral motion
+        p.userData.angle += 0.01;
+        p.position.x = Math.cos(p.userData.angle) * p.userData.radius;
+        p.position.y = Math.sin(p.userData.angle) * p.userData.radius;
+
+        // Reset if behind camera
+        if (p.position.z > 5) {
+            p.position.z = -tunnelLength / 2;
+            // Randomize position again
+            p.userData.angle = Math.random() * Math.PI * 2;
+            p.userData.radius = Math.random() * (tunnelRadius - 2);
+        }
+    });
+
+    renderer.render(scene, camera);
+}
